@@ -6,37 +6,64 @@ output:
     keep_md: true
 ---
 
-
 ## Loading and preprocessing the data
 
-```{r}
+```{r,echo=TRUE}
 data <- read.csv('activity.csv')
+data1 <- data 
 data_step <- data[,1]
+data_interval <- data[,3]
 datastep_no_missing <- data_step[!is.na(data_step)==TRUE]
+datainterval_no_missing <- data_interval[!is.na(data_step)==TRUE]
+
 ```
 
 ## What is mean total number of steps taken per day?
 
-```{r,echo = TRUE}
-Mean_Steps <- mean(datastep_no_missing,na.rm= TRUE)
-Mean_Steps
-Median_Steps <- median(datastep_no_missing,na.rm= TRUE)
-Median_Steps
-
-hist(data_step)
+```{r,echo=TRUE}
+total_steps_per_day <- tapply(data$steps, data$date, sum, na.rm=TRUE)
+total_steps_per_day
+mean(total_steps_per_day)
+median(total_steps_per_day)
+hist(total_steps_per_day,breaks = 15) 
 ```
+
 ## What is the average daily activity pattern?
 
-```{r,echo = TRUE}
-
-
+```{r, echo = TRUE}
+avg_steps_per_day <- tapply(data$steps, data$interval, mean, na.rm=TRUE) # avg_steps_per_interval
+data_interval_unique <- unique(data$interval)
+plot(data_interval_unique,avg_steps_per_day,type = "l")
 ```
+
+```{r, echo = TRUE}
+max_avg <- avg_steps_per_day[avg_steps_per_day==max(avg_steps_per_day)]
+max_interval <- which(avg_steps_per_day==max(avg_steps_per_day))
+plot(datastep_no_missing,type = "l")
+```
+
+The maximum number of steps taken on a day was `r max_avg` on `r max_interval`th 5 minute interval.
 
 ## Imputing missing values
+
 ```{r, echo=TRUE}
-Total_missing <- sum(is.na(data[,1]))
-Total_missing
+a <- sum(is.na(data[,1])) # Total number of missing days
+a
+mean_steps_per_day <- tapply(data$steps, data$date, mean, na.rm=TRUE)
 ```
+
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```{r,echo=TRUE}
+
+data1_week <- weekdays((as.POSIXct(data1[,2])))
+weekend_weekday <- factor(data1_week %in% c("Saturday","Sunday"), 
+               labels=c("weekday","weekend"))
+week_total_steps <- tapply(data1$steps,weekend_weekday, sum, na.rm=TRUE)
+weekday_avg <- week_total_steps[1]/5
+weekday_avg
+weekend_avg <- week_total_steps[2]/2
+weekend_avg
 ```
+
+Number of steps taken during weekends are more compared to weekdays.
