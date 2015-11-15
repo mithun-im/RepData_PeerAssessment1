@@ -11,18 +11,24 @@ output:
 
 ```{r}
 data <- read.csv('activity.csv')
-
+data_step <- data[,1]
+datastep_no_missing <- data_step[!is.na(data_step)==TRUE]
 ```
 
 ## What is mean total number of steps taken per day?
 
-```{r}
-Mean_Steps <- mean(data[,1],na.rm= TRUE,echo=TRUE)
+```{r,echo = TRUE}
+Mean_Steps <- mean(datastep_no_missing,na.rm= TRUE)
 Mean_Steps
+Median_Steps <- median(datastep_no_missing,na.rm= TRUE)
+Median_Steps
+
+hist(data_step)
 ```
 ## What is the average daily activity pattern?
 
-```{r}
+```{r,echo = TRUE}
+
 
 ```
 
@@ -32,3 +38,5 @@ Total_missing <- sum(is.na(data[,1]))
 Total_missing
 ```
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+```
