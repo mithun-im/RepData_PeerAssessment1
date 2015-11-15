@@ -1,5 +1,6 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
+author : Mithun IM
 output: 
   html_document:
     keep_md: true
@@ -8,18 +9,26 @@ output:
 
 ## Loading and preprocessing the data
 
+```{r}
+data <- read.csv('activity.csv')
 
+```
 
 ## What is mean total number of steps taken per day?
 
-
-
+```{r}
+Mean_Steps <- mean(data[,1],na.rm= TRUE,echo=TRUE)
+Mean_Steps
+```
 ## What is the average daily activity pattern?
 
+```{r}
 
+```
 
 ## Imputing missing values
-
-
-
+```{r, echo=TRUE}
+Total_missing <- sum(is.na(data[,1]))
+Total_missing
+```
 ## Are there differences in activity patterns between weekdays and weekends?
