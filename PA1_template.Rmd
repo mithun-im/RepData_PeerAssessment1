@@ -9,8 +9,9 @@ output:
 ## Loading and preprocessing the data
 
 ```{r,echo=TRUE}
+
 data <- read.csv('activity.csv')
-data1 <- data 
+data_filled <- data 
 data_step <- data[,1]
 data_interval <- data[,3]
 datastep_no_missing <- data_step[!is.na(data_step)==TRUE]
@@ -31,15 +32,14 @@ hist(total_steps_per_day,breaks = 15)
 ## What is the average daily activity pattern?
 
 ```{r, echo = TRUE}
-avg_steps_per_day <- tapply(data$steps, data$interval, mean, na.rm=TRUE) # avg_steps_per_interval
+avg_steps_per_interval <- tapply(data$steps, data$interval, mean, na.rm=TRUE) # avg_steps_per_interval
 data_interval_unique <- unique(data$interval)
-plot(data_interval_unique,avg_steps_per_day,type = "l")
+plot(data_interval_unique,avg_steps_per_interval,type = "l")
 ```
 
 ```{r, echo = TRUE}
-max_avg <- avg_steps_per_day[avg_steps_per_day==max(avg_steps_per_day)]
-max_interval <- which(avg_steps_per_day==max(avg_steps_per_day))
-plot(datastep_no_missing,type = "l")
+max_avg <- avg_steps_per_interval[avg_steps_per_interval==max(avg_steps_per_interval)]
+max_interval <- which(avg_steps_per_interval==max(avg_steps_per_interval))
 ```
 
 The maximum number of steps taken on a day was `r max_avg` on `r max_interval`th 5 minute interval.
@@ -49,21 +49,44 @@ The maximum number of steps taken on a day was `r max_avg` on `r max_interval`th
 ```{r, echo=TRUE}
 a <- sum(is.na(data[,1])) # Total number of missing days
 a
-mean_steps_per_day <- tapply(data$steps, data$date, mean, na.rm=TRUE)
 ```
+There are 288 5 minute intervals in a day. Data is missing on 8 days completely (2304/288=8).
+
+To replace the missing values, mean of the 5 minute intervals is used.
+```{r,echo = TRUE}
+data_filled$steps[which(is.na(data$steps))] <- avg_steps_per_interval
+```
+New dataset with filled values is data_filled. 
+```{r,echo = TRUE}
+steps_per_day_filled <- tapply(data_filled$steps, data_filled$date, sum, na.rm=TRUE)
+mean(steps_per_day_filled)
+median(steps_per_day_filled)
+hist(steps_per_day_filled,breaks = 15) 
+``` 
+
+The mean and median has coincided now. Both Mean and Median increased. Total steps per day has also increased. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 ```{r,echo=TRUE}
 
-data1_week <- weekdays((as.POSIXct(data1[,2])))
-weekend_weekday <- factor(data1_week %in% c("Saturday","Sunday"), 
+data_filled_week <- weekdays((as.POSIXct(data_filled[,2])))
+weekend_weekday <- factor(data_filled_week %in% c("Saturday","Sunday"), 
                labels=c("weekday","weekend"))
-week_total_steps <- tapply(data1$steps,weekend_weekday, sum, na.rm=TRUE)
+week_total_steps <- tapply(data_filled$steps,weekend_weekday, sum)
 weekday_avg <- week_total_steps[1]/5
 weekday_avg
 weekend_avg <- week_total_steps[2]/2
 weekend_avg
+
+data_weekend <- data_filled[weekdays(as.POSIXct(data_filled[,2])) %in% c("Sunday","Saturday"),]
+data_weekday <- data_filled[weekdays(as.POSIXct(data_filled[,2])) %in% c("Monday","Tuesday","Wednesday","Thursday","Friday"),]
+avg_steps_weekday <- tapply(data_weekday$steps, data_weekday$interval, mean, na.rm=TRUE) 
+avg_steps_weekend <- tapply(data_weekend$steps, data_weekend$interval, mean, na.rm=TRUE) #
+plot(avg_steps_weekday,type = "l")
+lines(avg_steps_weekend,type = "l",col = "red",xaxt="n")
+legend("topright",c("weekday","weekend"),bty = "n",lty = 1)
 ```
 
 Number of steps taken during weekends are more compared to weekdays.
+```
